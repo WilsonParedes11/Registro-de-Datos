@@ -1,6 +1,6 @@
 {
     "files.insertFinalNewline": true,
-    "editor.fontSize": 12,
+    "editor.fontSize": 14,
     "editor.lineHeight": 26,
     "terminal.integrated.fontSize": 12,
 }
