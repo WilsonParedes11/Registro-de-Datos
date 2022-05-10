@@ -2,7 +2,9 @@
 #-----@Wilson11-----#
 
 
+from time import time
 from tkinter import Entry, Label, Frame, Tk, Button, font, ttk, Scrollbar, VERTICAL, HORIZONTAL, StringVar, END,PhotoImage,messagebox
+from turtle import width
 
 
 from numpy import pad
@@ -56,7 +58,7 @@ class Registro(Frame):
         Entry(self.frame2,textvariable=self.correo,font=('Overpass Mono',12)).grid(column=1,row=5)
         Entry(self.frame2,textvariable=self.direccion,font=('Overpass Mono',12)).grid(column=1,row=6)
 
-        Label(self.frame4, text='Control',fg='#98c379',bg='#1d2127',font=('Overpass Mono',12,'bold')).grid(columnspan=3,column=0,row=0,pady=2,padx=4)
+        Label(self.frame4, text='Funciones del Sistema',fg='#98c379',bg='#1d2127',font=('Overpass Mono',12,'bold')).grid(columnspan=3,column=0,row=0,pady=2,padx=4)
 
         Button(self.frame4,text='Registrar',font=('Overpass Mono',12,'bold'),bg='#282c34',fg='#61afef',command=self.agregar_datos).grid(column=0,row=1,pady=10,padx=4)
         Button(self.frame4,text='Actualiza',font=('Overpass Mono',12,'bold'),bg='#282c34',fg='#61afef',command=self.actualizar_tabla).grid(column=1,row=1,padx=4)
@@ -65,7 +67,8 @@ class Registro(Frame):
         
         Entry(self.frame4,textvariable=self.buscar,font=('Overpass Mono',12),width=10).grid(column=0,row=2,pady=10,padx=4)
         Button(self.frame4,text='Limpiar',font=('Overpass Mono',12,'bold'),bg='#282c34',fg='#61afef',command=self.limpiar_datos).grid(column=0,row=3)
-        Button(self.frame4,text='Mostrar Datos',font=('Overpass Mono',12,'bold'),bg='#282c34',fg='#61afef',command=self.mostrar_datos).grid(columnspan=3,column=1,row=3,pady=2)
+        Button(self.frame4,text='Mostrar Datos',font=('Overpass Mono',12,'bold'),bg='#282c34',fg='#61afef',command=self.mostrar_datos).grid(column=1,row=3,pady=2)
+        Button(self.frame4, text='Leer',font=('Overpass Mono',12,'bold'),bg='#282c34',fg='#61afef', command=self.leer_datos).grid(column=2, row=3,pady=2)
 
         self.tabla=ttk.Treeview(self.frame3,height=21)
         self.tabla.grid(column=0,row=0)
@@ -79,10 +82,10 @@ class Registro(Frame):
 
         self.tabla['columns'] = ('Nombre','Telefono','Correo','Direccion')
 
-        self.tabla.column('#0',minwidth=100,width=120,anchor='center')
-        self.tabla.column('Nombre',minwidth=100,width=130,anchor='center')
+        self.tabla.column('#0',minwidth=75,width=90,anchor='center')
+        self.tabla.column('Nombre',minwidth=100,width=150,anchor='center')
         self.tabla.column('Telefono',minwidth=100,width=130,anchor='center')
-        self.tabla.column('Correo',minwidth=100,width=130,anchor='center')
+        self.tabla.column('Correo',minwidth=100,width=210,anchor='center')
         self.tabla.column('Direccion',minwidth=100,width=130,anchor='center')
 
         self.tabla.heading('#0',text='Codigo',anchor='center')
@@ -108,21 +111,13 @@ class Registro(Frame):
         direccion=self.direccion.get()
 
         datos=(nombre,telefono,correo,direccion)
-
+        
         if codigo and nombre and telefono and correo and direccion !='':
             self.tabla.insert('',0,text=codigo,values=datos)
             self.base_datos.insertar_contacto(codigo,nombre,telefono,correo,direccion)
-
-        messagebox.showinfo('!Atencion','Contacto Registrado Correctamente.')
-
-    def actualizar_tabla(self):
-        codigo=self.codigo.get()
-        nombre=self.nombre.get()
-        telefono=self.telefono.get()
-        correo=self.correo.get()
-        direccion=self.direccion.get()
-        self.base_datos.actualizar()
-
+            messagebox.showinfo('!Atencion','Contacto Registrado Correctamente.')
+        else:
+            messagebox.showinfo('!Atencion!','No a Ingresado Informacion')
 
     def limpiar_datos(self):
 
@@ -141,6 +136,11 @@ class Registro(Frame):
         nombre_contacto=str("'" + nombre_contacto + "'")
         nombre_buscado=self.base_datos.busca_contacto(nombre_contacto)
         self.tabla.delete(*self.tabla.get_children())
+
+        if nombre_buscado == []:
+            messagebox.showinfo('!Atencion!', 'No existe el contacto')
+            self.limpiar_datos()
+
         i=-1
         for dato in nombre_buscado:
             i=i+1
@@ -161,8 +161,7 @@ class Registro(Frame):
             self.tabla.delete(fila)
             nombre=("'"+ str(self.nombre_borar) + "'")
             self.base_datos.elimina_contacto(nombre)
-
-        messagebox.showinfo('!Atencion','Contacto Eliminado Correctamente.')
+            messagebox.showinfo('!Atencion','Contacto Eliminado Correctamente.')
     
     def obtener_fila(self, event):
 
@@ -172,15 +171,39 @@ class Registro(Frame):
         data = self.tabla.item(current_item)
         self.nombre_borar = data['values'][0]
 
-    
+    def leer_datos(self):
+        dato = self.buscar.get()
+        dato = str("'"+dato+"'")
+        nombre_buscado = self.base_datos.busca_contacto(dato)
 
- 
-        
+        if nombre_buscado == []:
+            messagebox.showinfo('!Atencion!', 'No existe el contacto')
+            self.limpiar_datos()
+        else:
+            i = -1
+            for dato in nombre_buscado:
+                i += 1
+                self.codigo.set(nombre_buscado[i][1])
+                self.nombre.set(nombre_buscado[i][2])
+                self.telefono.set(nombre_buscado[i][3])
+                self.correo.set(nombre_buscado[i][4])
+                self.direccion.set(nombre_buscado[i][5])
+    
+    def actualizar_tabla(self):
+        codigo=self.codigo.get()
+        nombre=self.nombre.get()
+        telefono=self.telefono.get()
+        correo=self.correo.get()
+        direccion=self.direccion.get()
+        self.base_datos.actualizar(codigo,nombre,telefono,correo,direccion)
+        messagebox.showinfo('!Atencion!','Datos Actualizadoz correctamente')
+        self.leer_datos()
+         
 def main():
     ventana = Tk()
     ventana.wm_title('Registro de Datos')
     ventana.config(bg='#1d2127')
-    ventana.geometry('980x575')
+    ventana.geometry('1050x575')
     ventana.resizable(0,0)
     ventana.tk.call('wm', 'iconphoto', ventana, PhotoImage(file='./img/registro.png'))
     app=Registro(ventana)

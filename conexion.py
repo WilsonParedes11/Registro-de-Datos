@@ -1,4 +1,4 @@
-
+#-----@Wilson11-----#
 import mysql.connector 
 
 class registro_datos():
@@ -24,7 +24,7 @@ class registro_datos():
         sql='''UPDATE contacto SET CODIGO='{}',NOMBRE='{}',TELEFONO='{}',CORREO='{}',DIRECCION='{}'
         WHERE nombre ='{}' '''.format(codigo,nombre,telefono,correo,direccion,nombre)
         cur.execute(sql)
-        a=cur.rowcount()
+        a=cur.rowcount
         self.conexion.commit()
         cur.close()
         return a
@@ -53,6 +53,8 @@ class registro_datos():
         cur.execute(sql)
         registro=cur.fetchall()
         return registro
+
+    
     
     
 
